@@ -1,82 +1,42 @@
-const plans = [
-  {id:"push",name:"PUSH DAY",category:"upper",description:"Prsa, ramena a triceps.",duration:"45–60 MIN",mark:"01",exercises:["Bench press","Shoulder press","Lateral raises","Triceps pushdown"]},
-  {id:"pull",name:"PULL DAY",category:"upper",description:"Záda, zadní ramena a biceps.",duration:"45–60 MIN",mark:"02",exercises:["Lat pulldown","Seated cable row","Face pulls","Biceps curls"]},
-  {id:"legs",name:"LEG DAY",category:"lower",description:"Nohy a střed těla.",duration:"50–65 MIN",mark:"03",exercises:["Squats nebo leg press","Romanian deadlift","Leg curl","Calf raises"]},
-  {id:"upper",name:"UPPER BODY",category:"upper",description:"Kompletní trénink horní poloviny.",duration:"45–60 MIN",mark:"04",exercises:["Bench press","Lat pulldown","Shoulder press","Cable row"]},
-  {id:"lower",name:"LOWER BODY",category:"lower",description:"Síla nohou a stabilita.",duration:"45–60 MIN",mark:"05",exercises:["Goblet squat","Hip hinge","Split squat","Plank"]},
-  {id:"full",name:"FULL BODY",category:"full",description:"Základní pohyby pro celé tělo.",duration:"40–55 MIN",mark:"06",exercises:["Squat variation","Push movement","Pull movement","Core exercise"]}
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const KEY='noirFitnessPlusV1';
+const plans=[
+{id:1,name:'Push Day',type:'Push',time:60,level:'Střední',desc:'Hrudník, ramena a triceps. Silný základ pro horní část těla.',exercises:[['Bench press',4,8,0],['Incline dumbbell press',3,10,0],['Shoulder press',3,10,0],['Lateral raises',3,12,0],['Triceps pushdown',3,12,0]]},
+{id:2,name:'Pull Day',type:'Pull',time:60,level:'Střední',desc:'Záda, zadní ramena a biceps pro vyvážený rozvoj.',exercises:[['Lat pulldown',4,10,0],['Seated row',3,10,0],['Chest-supported row',3,10,0],['Face pulls',3,15,0],['Biceps curl',3,12,0]]},
+{id:3,name:'Leg Day',type:'Legs',time:65,level:'Střední',desc:'Kompletní trénink nohou s důrazem na techniku.',exercises:[['Squat / leg press',4,8,0],['Romanian deadlift',3,10,0],['Leg extension',3,12,0],['Leg curl',3,12,0],['Calf raises',4,15,0]]},
+{id:4,name:'Upper Body',type:'Full body',time:55,level:'Začátečník',desc:'Základní cviky na celé horní tělo. Dobrá volba pro vyvážený trénink.',exercises:[['Chest press',3,10,0],['Lat pulldown',3,10,0],['Seated shoulder press',3,10,0],['Cable row',3,12,0],['Biceps curl',2,12,0]]},
+{id:5,name:'Full Body',type:'Full body',time:50,level:'Začátečník',desc:'Trénink celého těla pro dny, kdy chceš procvičit všechno.',exercises:[['Goblet squat',3,10,0],['Dumbbell press',3,10,0],['Lat pulldown',3,10,0],['Hip hinge',3,10,0],['Plank',3,30,0]]},
+{id:6,name:'Arms & Shoulders',type:'Push',time:45,level:'Střední',desc:'Doplňkový trénink paží a ramen pro pestrost programu.',exercises:[['Shoulder press',3,10,0],['Lateral raises',3,15,0],['Biceps curl',3,12,0],['Hammer curl',3,12,0],['Triceps extension',3,12,0]]},
+{id:7,name:'Back Focus',type:'Pull',time:50,level:'Střední',desc:'Různé úhly tahových cviků pro záda a lepší kontrolu pohybu.',exercises:[['Lat pulldown',4,10,0],['Cable row',3,12,0],['Single-arm row',3,10,0],['Reverse fly',3,15,0],['Back extension',2,12,0]]},
+{id:8,name:'Glutes & Legs',type:'Legs',time:55,level:'Střední',desc:'Spodní část těla s důrazem na hýždě, hamstringy a stabilitu.',exercises:[['Hip thrust',4,10,0],['Leg press',3,12,0],['Leg curl',3,12,0],['Split squat',3,10,0],['Calf raises',3,15,0]]},
+{id:9,name:'Cardio & Core',type:'Full body',time:30,level:'Všechny úrovně',desc:'Kondice a střed těla. Přizpůsob intenzitu své aktuální kondici.',exercises:[['Bike / treadmill',1,15,0],['Dead bug',3,10,0],['Plank',3,30,0],['Bird dog',3,10,0]]}
 ];
-const storageKey = "noirFitnessHistoryV2";
-const grid = document.getElementById("workoutGrid");
-const toast = document.getElementById("toast");
-let activeFilter = "all";
-let toastTimer;
-
-function getHistory(){
-  try { const data = JSON.parse(localStorage.getItem(storageKey) || "[]"); return Array.isArray(data) ? data : []; }
-  catch { return []; }
-}
-function saveHistory(history){ try { localStorage.setItem(storageKey, JSON.stringify(history)); } catch { showToast("Prohlížeč nedovolil uložit historii."); } }
-function showToast(message){
-  toast.textContent = message; toast.classList.add("show");
-  clearTimeout(toastTimer); toastTimer = setTimeout(()=>toast.classList.remove("show"),2600);
-}
-function renderPlans(){
-  const visible = plans.filter(p=>activeFilter==="all" || p.category===activeFilter);
-  grid.innerHTML = visible.map(plan=>`
-    <article class="workout">
-      <span class="workout-number">PROGRAM / ${plan.mark}</span><span class="workout-mark">${plan.mark}</span>
-      <h3>${plan.name}</h3><p class="workout-description">${plan.description}</p>
-      <ul class="exercise-list">${plan.exercises.map(ex=>`<li>${ex}</li>`).join("")}</ul>
-      <div class="workout-bottom"><span class="duration">◷ &nbsp;${plan.duration}</span><button class="complete-button" type="button" data-plan="${plan.id}">DOKONČIT ✓</button></div>
-    </article>`).join("");
-}
-function weekStart(timestamp){
-  const date = new Date(timestamp); date.setHours(0,0,0,0);
-  date.setDate(date.getDate() - ((date.getDay()+6)%7)); return date.getTime();
-}
-function renderHistory(){
-  const history = getHistory();
-  const now = Date.now();
-  const thisWeek = history.filter(item=>item.timestamp && item.timestamp>=weekStart(now));
-  document.getElementById("total").textContent = history.length;
-  document.getElementById("weekly").textContent = thisWeek.length;
-  document.getElementById("goalCount").textContent = Math.min(thisWeek.length,3);
-  document.getElementById("goalBar").style.width = `${Math.min(thisWeek.length/3,1)*100}%`;
-  const list = document.getElementById("history");
-  if(!history.length){
-    list.innerHTML = `<div class="empty-state"><span>✳</span><p>Zatím žádné záznamy.</p><small>Dokonči svůj první trénink a objeví se tady.</small></div>`;
-    return;
-  }
-  list.innerHTML = history.slice(0,12).map((item,index)=>{
-    const date = new Date(item.timestamp);
-    const dateText = date.toLocaleDateString("cs-CZ",{day:"numeric",month:"short",year:"numeric"});
-    const timeText = date.toLocaleTimeString("cs-CZ",{hour:"2-digit",minute:"2-digit"});
-    const initials = String(index+1).padStart(2,"0");
-    return `<div class="history-item"><div class="history-badge">${initials}</div><div><div class="history-name">${escapeHTML(item.name)}</div><div class="history-date">${dateText}</div></div><div class="history-time">${timeText}</div></div>`;
-  }).join("");
-}
-function escapeHTML(value){
-  return String(value).replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
-}
-grid.addEventListener("click",event=>{
-  const button = event.target.closest("[data-plan]");
-  if(!button)return;
-  const plan = plans.find(p=>p.id===button.dataset.plan);
-  if(!plan)return;
-  const history = getHistory();
-  history.unshift({name:plan.name,timestamp:Date.now()});
-  saveHistory(history); renderHistory();
-  showToast(`Trénink ${plan.name} zaznamenán. Dobrá práce!`);
-});
-document.querySelectorAll(".filter").forEach(button=>button.addEventListener("click",()=>{
-  activeFilter=button.dataset.filter;
-  document.querySelectorAll(".filter").forEach(b=>b.classList.toggle("active",b===button));
-  renderPlans();
-}));
-document.getElementById("clearHistory").addEventListener("click",()=>{
-  const history=getHistory();
-  if(!history.length){showToast("Historie je už prázdná.");return;}
-  if(confirm("Opravdu chceš vymazat všechny záznamy tréninků?")){saveHistory([]);renderHistory();showToast("Historie byla vymazána.");}
-});
-renderPlans();renderHistory();
+let state=loadState(); let currentFilter='Vše';
+function defaultState(){return {workouts:[],foods:[],profile:{name:'NOIR ATHLETE',goalWorkouts:4,goalCalories:2200},prs:{}}}
+function loadState(){try{return {...defaultState(),...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch{return defaultState()}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state));renderAll()}
+function today(){return new Date().toISOString().slice(0,10)}
+function escapeHTML(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function notify(s){const t=$('#toast');t.textContent=s;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
+function startOfWeek(d=new Date()){const x=new Date(d);x.setHours(0,0,0,0);const day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);return x.toISOString().slice(0,10)}
+function thisWeek(){return state.workouts.filter(w=>w.date>=startOfWeek()&&w.date<=today())}
+function volume(w){return (w.exercises||[]).reduce((sum,e)=>sum+(Number(e.weight)||0)*(Number(e.reps)||0)*(Number(e.sets)||0),0)}
+function fmtDate(d){if(!d)return '';return new Date(d+'T12:00:00').toLocaleDateString('cs-CZ',{day:'numeric',month:'short',year:'numeric'})}
+function renderPlans(){const cards=plans.filter(p=>currentFilter==='Vše'||p.type===currentFilter).map(p=>`<article class="plan-card"><div class="plan-card-top"><span class="plan-tag">${p.type.toUpperCase()}</span><span class="subtext">◷ ${p.time} min</span></div><h3>${p.name}</h3><p>${p.desc}</p><div class="plan-meta"><span>↗ ${p.level}</span><span>◈ ${p.exercises.length} cviků</span></div><button class="btn secondary" data-plan="${p.id}">Zobrazit plán →</button></article>`).join('');$('#allPlans').innerHTML=cards||'<div class="empty">Žádné plány v této kategorii.</div>';$('#homePlans').innerHTML=plans.slice(0,4).map(p=>`<div class="plan-row"><div class="plan-icon">↗</div><div class="plan-info"><b>${p.name}</b><small>${p.type} · ${p.time} min · ${p.exercises.length} cviků</small></div><button class="plan-action" data-plan="${p.id}">Zobrazit</button></div>`).join('')}
+function historyMarkup(w,del=true){return `<div class="history-row"><div class="plan-icon">✓</div><div class="history-main"><b>${escapeHTML(w.name)}</b><small>${fmtDate(w.date)} · ${escapeHTML(w.type||'Jiné')} · ${Number(w.duration)||0} min · ${w.exercises?.length||0} cviků</small></div><button class="plan-action" data-view-workout="${w.id}">Detail</button>${del?`<button class="delete-btn" data-delete-workout="${w.id}" title="Smazat">×</button>`:''}</div>`}
+function renderHistory(){const sorted=[...state.workouts].sort((a,b)=>b.date.localeCompare(a.date)||b.created-a.created);$('#recentHistory').innerHTML=sorted.slice(0,4).map(w=>historyMarkup(w,false)).join('')||'<div class="empty">Zatím tu nic není. Zapiš svůj první trénink.</div>';$('#fullHistory').innerHTML=sorted.map(w=>historyMarkup(w,true)).join('')||'<div class="empty">Historie je zatím prázdná.</div>'}
+function renderStats(){const week=thisWeek(),vol=state.workouts.reduce((s,w)=>s+volume(w),0),mins=state.workouts.reduce((s,w)=>s+(Number(w.duration)||0),0);$('#totalWorkouts').textContent=state.workouts.length;$('#weekWorkouts').innerHTML=`${week.length}<span class="unit"> / ${state.profile.goalWorkouts}</span>`;$('#weekBar').style.width=Math.min(100,week.length/Math.max(1,state.profile.goalWorkouts)*100)+'%';$('#weekHint').textContent=week.length>=state.profile.goalWorkouts?'Týdenní cíl splněn. Skvělá práce!':`Ještě ${state.profile.goalWorkouts-week.length} do týdenního cíle`;$('#totalVolume').innerHTML=`${Math.round(vol).toLocaleString('cs-CZ')}<span class="unit"> kg</span>`;$('#prCount').textContent=Object.keys(state.prs||{}).length;$('#progressTotal').textContent=state.workouts.length;$('#totalMinutes').textContent=mins;$('#avgDuration').innerHTML=`${state.workouts.length?Math.round(mins/state.workouts.length):0}<span class="unit"> min</span>`;$('#progressWeek').textContent=week.length;renderChart();renderRecords()}
+function renderChart(){const days=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const key=d.toISOString().slice(0,10);days.push({key,label:d.toLocaleDateString('cs-CZ',{weekday:'short'}).replace('.',''),count:state.workouts.filter(w=>w.date===key).length})}const max=Math.max(1,...days.map(d=>d.count));$('#activityChart').innerHTML=days.map(d=>`<div class="chart-day"><b>${d.count||''}</b><div class="chart-bar-wrap"><div class="chart-bar ${d.count?'has-data':''}" style="height:${d.count?Math.max(12,d.count/max*100):4}px"></div></div><small>${d.label}</small></div>`).join('')}
+function renderRecords(){const rec=Object.entries(state.prs||{}).sort((a,b)=>b[1].weight-a[1].weight);$('#recordsList').innerHTML=rec.map(([name,r])=>`<div class="record-item"><span>${escapeHTML(name)} <small class="subtext">· ${fmtDate(r.date)}</small></span><b>${r.weight} kg × ${r.reps} op.</b></div>`).join('')||'<div class="empty">Rekordy se uloží při zapisování cviků.</div>'}
+function renderFood(){const foods=state.foods.filter(f=>f.date===today());const sum=k=>foods.reduce((s,f)=>s+(Number(f[k])||0),0);const kcal=sum('calories');$('#calorieTotal').innerHTML=`${kcal.toLocaleString('cs-CZ')} <small>kcal</small>`;$('#calorieBar').style.width=Math.min(100,kcal/Math.max(1,state.profile.goalCalories)*100)+'%';$('#calorieGoalText').textContent=`${Math.max(0,state.profile.goalCalories-kcal).toLocaleString('cs-CZ')} kcal do nastaveného cíle`;$('#proteinTotal').textContent=sum('protein')+' g';$('#carbTotal').textContent=sum('carbs')+' g';$('#fatTotal').textContent=sum('fat')+' g';$('#foodList').innerHTML=foods.map(f=>`<div class="history-row"><div class="plan-icon">◉</div><div class="history-main"><b>${escapeHTML(f.name)}</b><small>${f.calories} kcal · B ${f.protein} g · S ${f.carbs} g · T ${f.fat} g</small></div><button class="delete-btn" data-delete-food="${f.id}">×</button></div>`).join('')||'<div class="empty">Zatím žádná jídla pro dnešek.</div>'}
+function renderProfile(){ $('#profileName').value=state.profile.name||'';$('#goalWorkouts').value=state.profile.goalWorkouts||4;$('#goalCalories').value=state.profile.goalCalories||2200;$('.mini-profile b').textContent=(state.profile.name||'NOIR ATHLETE').toUpperCase() }
+function renderAll(){renderPlans();renderHistory();renderStats();renderFood();renderProfile()}
+function showPage(name){$$('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+name));$$('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.page===name));const labels={home:'Přehled',workouts:'Tréninky',log:'Zapsat trénink',progress:'Progres',nutrition:'Jídelníček',profile:'Profil a cíle'};$('#pageTitle').textContent=labels[name]||'Přehled';window.scrollTo({top:0,behavior:'smooth'})}
+function addExerciseRow(name='',sets=3,reps=10,weight=0){const row=document.createElement('div');row.className='exercise-row';row.innerHTML=`<label>Cvik<input class="ex-name" required placeholder="Název" value="${escapeHTML(name)}"></label><label>Série<input class="ex-sets" type="number" min="1" max="20" value="${sets}" required></label><label>Opak.<input class="ex-reps" type="number" min="1" max="500" value="${reps}" required></label><label>Váha kg<input class="ex-weight" type="number" min="0" max="1000" step="0.5" value="${weight}" required></label><button type="button" class="remove-exercise">×</button>`;$('#exerciseRows').append(row)}
+function openPlan(id){const p=plans.find(x=>x.id===Number(id));if(!p)return;$('#modalContent').innerHTML=`<span class="eyebrow">${p.type.toUpperCase()} · ${p.time} MIN</span><h2>${p.name}</h2><p class="subtext">${p.desc}</p>${p.exercises.map((e,i)=>`<div class="modal-exercise"><b>${i+1}. ${e[0]}</b><small>${e[1]} série × ${e[2]} opakování · váhu přizpůsob své úrovni</small></div>`).join('')}<button class="btn primary full" id="usePlan">＋ Zapsat tento trénink</button>`;$('#modal').classList.remove('hidden');$('#usePlan').onclick=()=>{resetWorkoutForm(p);$('#modal').classList.add('hidden');showPage('log')}}
+function resetWorkoutForm(p=null){$('#workoutForm').reset();$('#workoutDate').value=today();$('#workoutType').value=p?.type||'Push';$('#workoutName').value=p?.name||'';$('#exerciseRows').innerHTML='';(p?p.exercises:[['Bench press',3,10,0]]).forEach(e=>addExerciseRow(e[0],e[1],e[2],e[3]));if(p)notify('Plán připraven k zápisu')}
+function viewWorkout(id){const w=state.workouts.find(x=>x.id===id);if(!w)return;$('#modalContent').innerHTML=`<span class="eyebrow">${fmtDate(w.date)} · ${escapeHTML(w.type)}</span><h2>${escapeHTML(w.name)}</h2><p class="subtext">${w.duration||0} min · objem ${Math.round(volume(w)).toLocaleString('cs-CZ')} kg</p>${(w.exercises||[]).map((e,i)=>`<div class="modal-exercise"><b>${i+1}. ${escapeHTML(e.name)}</b><small>${e.sets} série × ${e.reps} opak. · ${e.weight} kg</small></div>`).join('')||'<p class="subtext">Bez cviků</p>'}${w.notes?`<p class="subtext">Poznámka: ${escapeHTML(w.notes)}</p>`:''}`;$('#modal').classList.remove('hidden')}
+function exportBackup(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='noir-fitness-zaloha.json';a.click();URL.revokeObjectURL(a.href);notify('Záloha připravena ke stažení')}
+$('#nav').addEventListener('click',e=>{const b=e.target.closest('[data-page]');if(b)showPage(b.dataset.page)});document.body.addEventListener('click',e=>{const goto=e.target.closest('[data-goto]');if(goto)showPage(goto.dataset.goto);const p=e.target.closest('[data-plan]');if(p)openPlan(p.dataset.plan);const v=e.target.closest('[data-view-workout]');if(v)viewWorkout(v.dataset.viewWorkout);const d=e.target.closest('[data-delete-workout]');if(d&&confirm('Opravdu smazat tento trénink?')){state.workouts=state.workouts.filter(w=>w.id!==d.dataset.deleteWorkout);save();notify('Trénink smazán')}const f=e.target.closest('[data-delete-food]');if(f){state.foods=state.foods.filter(x=>x.id!==f.dataset.deleteFood);save();notify('Jídlo smazáno')}});
+$('#filters').addEventListener('click',e=>{const b=e.target.closest('[data-filter]');if(!b)return;currentFilter=b.dataset.filter;$$('.filter').forEach(x=>x.classList.toggle('active',x===b));renderPlans()});$('#quickLog').onclick=()=>{resetWorkoutForm();showPage('log')};$('#addExercise').onclick=()=>addExerciseRow();$('#exerciseRows').addEventListener('click',e=>{if(e.target.closest('.remove-exercise')){if($('#exerciseRows').children.length>1)e.target.closest('.exercise-row').remove();else notify('Nech tam alespoň jeden cvik')}});$('#workoutForm').addEventListener('submit',e=>{e.preventDefault();const exercises=$$('.exercise-row').map(r=>({name:r.querySelector('.ex-name').value.trim(),sets:Number(r.querySelector('.ex-sets').value),reps:Number(r.querySelector('.ex-reps').value),weight:Number(r.querySelector('.ex-weight').value)}));const w={id:crypto.randomUUID(),created:Date.now(),name:$('#workoutName').value.trim(),date:$('#workoutDate').value,duration:Number($('#duration').value)||0,type:$('#workoutType').value,notes:$('#workoutNotes').value.trim(),exercises};state.workouts.push(w);for(const ex of exercises){const prev=state.prs[ex.name];if(!prev||ex.weight>prev.weight)state.prs[ex.name]={weight:ex.weight,reps:ex.reps,date:w.date}}save();notify('Trénink uložen. Jedeš dál!');resetWorkoutForm();showPage('progress')});$('#foodForm').addEventListener('submit',e=>{e.preventDefault();state.foods.push({id:crypto.randomUUID(),date:today(),name:$('#foodName').value.trim(),calories:Number($('#foodCalories').value),protein:Number($('#foodProtein').value)||0,carbs:Number($('#foodCarbs').value)||0,fat:Number($('#foodFat').value)||0});save();$('#foodForm').reset();$('#foodProtein').value=0;$('#foodCarbs').value=0;$('#foodFat').value=0;notify('Jídlo přidáno')});$('#profileForm').addEventListener('submit',e=>{e.preventDefault();state.profile={...state.profile,name:$('#profileName').value.trim()||'NOIR ATHLETE',goalWorkouts:Number($('#goalWorkouts').value),goalCalories:Number($('#goalCalories').value)};save();notify('Nastavení uloženo')});$('#clearHistory').onclick=()=>{if(confirm('Opravdu smazat celou historii tréninků?')){state.workouts=[];state.prs={};save();notify('Historie smazána')}};$('#clearFood').onclick=()=>{if(confirm('Smazat dnešní záznamy jídel?')){state.foods=state.foods.filter(f=>f.date!==today());save();notify('Dnešní jídla smazána')}};$('#exportData').onclick=exportBackup;$('#exportProfile').onclick=exportBackup;$('#importProfile').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{const data=JSON.parse(await file.text());if(!Array.isArray(data.workouts)||!Array.isArray(data.foods)||!data.profile)throw Error();if(confirm('Nahradit aktuální data zálohou?')){state={...defaultState(),...data};save();notify('Záloha obnovena')}}catch{notify('Soubor zálohy není platný')}e.target.value=''});$('#resetAll').onclick=()=>{if(confirm('Opravdu vymazat všechna data aplikace? Tato akce nejde vrátit.')){state=defaultState();save();notify('Data resetována')}};$('#closeModal').onclick=()=>$('#modal').classList.add('hidden');$('#modal').addEventListener('click',e=>{if(e.target===$('#modal'))$('#modal').classList.add('hidden')});
+$('#todayLabel').textContent=new Date().toLocaleDateString('cs-CZ',{weekday:'short',day:'numeric',month:'short'});$('#workoutDate').value=today();addExerciseRow('Bench press',3,10,0);renderAll();
