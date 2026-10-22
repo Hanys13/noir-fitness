@@ -1,48 +1,59 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NOIR FITNESS</title>
-<link rel="stylesheet" href="style.css">
-<script src="script.js" defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b0c0b">
+  <meta name="description" content="NOIR FITNESS — tréninkový plán, historie a přehled tvého progresu.">
+  <title>NOIR FITNESS — Train with intent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
 </head>
-<body>
-<header>
-<h2>NOIR<span>.</span></h2>
-<nav>
-<a href="#workouts">Tréninky</a>
-<a href="#progress">Progres</a>
-</nav>
-</header>
-<main>
-<section class="hero">
-<p>DISCIPLINE. CONSISTENCY. RESULTS.</p>
-<h1>BUILD YOUR<br><span>BEST SELF.</span></h1>
-<p>Tvůj trénink. Tvoje pravidla. Tvoje výsledky.</p>
-<a class="btn" href="#workouts">VYBRAT TRÉNINK ↗</a>
-</section>
-<section class="stats">
-<div class="card">
-<p>DOKONČENÉ TRÉNINKY</p>
-<h2 id="total">0</h2>
-</div>
-<div class="card">
-<p>TENTO TÝDEN</p>
-<h2 id="weekly">0</h2>
-</div>
-</section>
-<section id="workouts">
-<p class="label">YOUR PROGRAM</p>
-<h2>Vyber si <span>trénink.</span></h2>
-<div id="workoutGrid" class="grid"></div>
-</section>
-<section id="progress">
-<p class="label">YOUR JOURNEY</p>
-<h2>Tvůj <span>progres.</span></h2>
-<div id="history">Zatím žádné tréninky.</div>
-</section>
-</main>
-<footer>NOIR FITNESS · BUILT BY DISCIPLINE</footer>
+<body id="top">
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="NOIR Fitness domů">NOIR<span>.</span></a>
+    <nav aria-label="Hlavní navigace"><a href="#workouts">Tréninky</a><a href="#progress">Můj progres</a></nav>
+    <a class="header-cta" href="#workouts">ZAČÍT TRÉNINK <span>↗</span></a>
+  </header>
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="live-dot"></span> TVŮJ OSOBNÍ TRAINING SPACE</div>
+        <h1>BUĎ SILNĚJŠÍ.<br><span>KAŽDÝ DEN.</span></h1>
+        <p class="hero-description">Nečekej na motivaci. Vybuduj disciplínu.<br>Tvůj plán, tvoje tempo, tvoje výsledky.</p>
+        <div class="hero-actions"><a class="button button-primary" href="#workouts">VYBRAT TRÉNINK <span>↗</span></a><a class="text-link" href="#progress">Sledovat progres <span>↓</span></a></div>
+      </div>
+      <div class="hero-art" aria-label="Grafický motiv NOIR">
+        <div class="orbit orbit-outer"></div><div class="orbit orbit-inner"></div>
+        <div class="art-core"><span>NR</span><small>EST. 2026</small></div>
+        <div class="art-label art-label-top">MINDSET / 001</div><div class="art-label art-label-bottom">NO EXCUSES. JUST WORK.</div><div class="art-line"></div>
+      </div>
+      <div class="hero-index"><span>01</span><span class="index-line"></span><span>DISCIPLINE OVER MOTIVATION</span></div>
+    </section>
+    <section class="stats-section" aria-label="Tvoje statistiky">
+      <div class="section-kicker">TVŮJ PŘEHLED <span>— LIVE TRACKING</span></div>
+      <div class="stats">
+        <article class="stat-card"><div class="stat-top"><span>DOKONČENÉ TRÉNINKY</span><span class="stat-icon">↗</span></div><div class="stat-number" id="total">0</div><div class="stat-foot">Celkem zaznamenáno</div></article>
+        <article class="stat-card"><div class="stat-top"><span>TENTO TÝDEN</span><span class="stat-icon">◷</span></div><div class="stat-number" id="weekly">0</div><div class="stat-foot">Od pondělí do neděle</div></article>
+        <article class="stat-card stat-card-accent"><div class="stat-top"><span>AKTUÁLNÍ CÍL</span><span class="stat-icon">✳</span></div><div class="stat-number"><span id="goalCount">0</span><small> / 3</small></div><div class="progress-track"><span id="goalBar"></span></div><div class="stat-foot">3 tréninky za týden</div></article>
+      </div>
+    </section>
+    <section id="workouts" class="workouts-section">
+      <div class="section-heading"><div><div class="section-kicker">01 / TRAINING LIBRARY</div><h2>Najdi svůj <span>režim.</span></h2></div><p>Vyber plán, odmakáš trénink<br>a zaznamenej svůj progres.</p></div>
+      <div class="filter-row" role="group" aria-label="Filtrovat tréninky"><button class="filter active" data-filter="all">VŠECHNY</button><button class="filter" data-filter="upper">VRŠEK TĚLA</button><button class="filter" data-filter="lower">SPODNÍ ČÁST</button><button class="filter" data-filter="full">FULL BODY</button></div>
+      <div id="workoutGrid" class="workout-grid"></div>
+    </section>
+    <section id="progress" class="progress-section">
+      <div class="section-heading"><div><div class="section-kicker">02 / YOUR JOURNEY</div><h2>Každý trénink <span>se počítá.</span></h2></div><p>Pravidelnost dělá rozdíl.<br>Vrať se a sleduj, co jsi dokázal.</p></div>
+      <div class="history-panel"><div class="history-header"><div><span class="panel-label">TVŮJ TRÉNINKOVÝ DENÍK</span><h3>Poslední aktivita</h3></div><button id="clearHistory" class="clear-button" type="button">VYMAZAT HISTORII ↗</button></div><div id="history" class="history-list"></div></div>
+      <p class="privacy-note">Tvoje data zůstávají v tomto prohlížeči na tvém zařízení.</p>
+    </section>
+  </main>
+  <footer><a class="brand" href="#top">NOIR<span>.</span></a><span>BUILT BY DISCIPLINE · 2026</span><a href="#top" class="back-top">NAHORU ↑</a></footer>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
 </html>
